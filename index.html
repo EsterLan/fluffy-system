@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf8">
+    <script src="./lib/vue.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./lib/index.css"/>
+    <script src="./lib/index.js"></script>
+    <script src="./index.js"></script>
+</head>
+<body>
+    <div id="container">
+        <div id="left-item" class="float-left">
+            <!-- <div class="class-list" ref="classList">
+              <div v-for="(item, index) in classList"
+                class = "class-item"
+                :class="selectedClassId === item.id ? 'active class' : 'class'"
+                @dblclick="editClass=true"
+              >
+                {{item.content}}
+              </div>
+            </div> -->
+            <div class="classMenu">
+                <el-menu 
+                    :default-active="selectedClassId"
+                    @select = "handleSelect"
+                    v-for="classItem in classList"
+                >
+                    <el-menu-item 
+                        :index="classItem.id"
+                        :key="classItem.id">
+                        <span slot="title"> {{classItem.content}}  </span>
+                    </el-menu-item>
+                </el-menu>
+                      <el-input 
+                      placeholder="请输入分类"
+                      v-model="inputClass"
+                      @keyup.enter.native="addClass"
+                      v-if="ifAddClass"
+                      clearable>
+                      </el-input>
+            </div>
+            <!-- <div class="add-class" onclick="addClass()"><img src="./assets/plus.svg"/>新建分类</div> -->
+            <!-- <el-button type="primary"  class="icon-op" style="margin-left: 10px;" shape="default" @click="addClass()" > -->
+            <el-button type="primary"  class="icon-op" style="margin-left: 10px;" shape="default" @click="showAddClass()" >
+              <img src="./assets/plus.svg"/>新建分类
+            </el-button>
+
+        </div>
+        <div id="right-item" class="float-right">
+            <!-- <input class="work-list-header-input" type="text" style= "background-color:transparent;border:0;" value=${{classList.selectedClassId.content}} /> -->
+            <!-- <el-input 
+                    v-model="inputClass"
+                    key="selectedClassId"
+                    @keyup.enter.native="addClass"
+                    @dblclick="editClass=true"
+                    clearable>
+                    <template slot="title">{{ classList[selectedClassId].content }} </template>
+            </el-input> -->
+            <v-text-field
+                      :value=" classList[selectedClassId].content"
+                      @blur="doneEdit"
+                      @keyup.enter="doneEdit"
+                      @keyup.esc="cancelEdit"
+                      clearable
+                      color="primary"
+                      flat
+                      hide-details
+                      maxlength="1023"
+                      ref="input"
+                      solo
+                      v-else
+                      v-focus="editing"
+                    ></v-text-field>
+            <!-- <el-input 
+                    v-model="inputClass"
+                    key="selectedClassId"
+                    @keyup.enter.native="editClass"
+                    clearable>
+                    {{ classList.selectedClassId.content }}
+            </el-input> -->
+            <div class="work-list-header-menu">
+                <div class="add-work" onclick="showNewWork()"><img src="./assets/plus.svg"/></div>
+                <!-- <div class="delete-class" onclick="deleteClass(selectedClassId)"><img src="./assets/delete.svg"/></div> -->
+                <el-button type="primary"  class="icon-op" style="margin-left: 10px;" shape="default" @click="deleteClass(selectedClassId)" >
+                  删除分类
+                </el-button>
+            </div>
+            <div class="workList">
+              <!-- <el-menu 
+                  :default-active="selectedWorkId"
+                  @select = "handleSelect"
+                  v-for="todo in workList"
+              >
+                  <el-menu-item 
+                      :index="classItem.id"
+                      :key="classItem.id">
+                      <span slot="title"> {{classItem.content}}  </span>
+                  </el-menu-item>
+              </el-menu> -->
+                    <!-- <el-input 
+                    placeholder="请输入待办"
+                    v-model="inputWork"
+                    @keyup.enter.native="addWorkList(selectedClassId, inputWork)"
+                    clearable>
+              </el-input> -->
+          </div>
+            <!-- <div class="work-list" ref="workList"> -->
+              <!-- <v-list class="pa-0">
+                <template v-for="todo in filteredTodos">
+                  <v-divider :key="`${todo.uid}-divider`"></v-divider>
+                  <todoItem
+                    :key="todo.workId"
+                    :todo="todo"
+                  />
+                </template>
+              </v-list> -->
+              <!-- <v-list>
+                <template v-for="todo in workList">
+                  <v-divider :key="`${todo.uid}-divider`"></v-divider> 
+                  {todo.workContent}
+                  <v-list-tile class="todo-item" :class="{ 'editing': editing }">
+                    <v-list-tile-action>
+                      <v-checkbox
+                        :input-value="todo.status"
+                        @change="toggleTodo(todo)"
+                        color="primary"
+                        v-if="!editing"
+                      ></v-checkbox>
+                      <v-icon
+                        color="primary"
+                        v-else
+                      >edit</v-icon>
+                    </v-list-tile-action>
+                    <template v-if="!editing">
+                      <v-list-tile-content
+                        :class="{ 'primary--text': todo.status }"
+                        @dblclick="editing = true"
+                      >
+                        {{ todo.content }}
+                      </v-list-tile-content>
+                      <v-list-tile-action>
+                        <v-btn
+                          @click="removeTodo(todo)"
+                          color="red lighten-3"
+                          flat
+                          icon
+                        >
+                          <v-icon>close</v-icon>
+                        </v-btn>
+                      </v-list-tile-action>
+                    </template>
+                    <v-text-field
+                      :value="todo.content"
+                      @blur="doneEdit"
+                      @keyup.enter="doneEdit"
+                      @keyup.esc="cancelEdit"
+                      clearable
+                      color="primary"
+                      flat
+                      hide-details
+                      maxlength="1023"
+                      ref="input"
+                      solo
+                      v-else
+                      v-focus="editing"
+                    ></v-text-field>
+                  </v-list-tile>
+                </template>
+              </v-list> -->
+    
+            <!-- </div> -->
+        </div>
+        
+    </div>
+    
+</body>
+<script>
+      // import {todoItem} from './components/todoItem'
+      function createGuid() {
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+              var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+              return v.toString(16);
+          });
+      }
+          new Vue({
+            el: '#container',
+            // components: {
+            //     todoItem
+            // },
+            data () {
+                return {
+                  classListName: 'classList',
+                  workListName: 'workList',
+                  selectedClassId: '',
+                  classList: {},
+                  workList: {},
+                  editClass: false,
+                  editing: false,
+                  ifAddClass: false,
+                  inputClass: "",
+                  inputWork: ""
+                }
+            },
+            created() {
+              window.rubick.onPluginEnter(({ code, type, payload }) => {
+                console.log('2222222222-----------------')
+                // this.initDb();
+                this.initDb( () => {
+                    if (code == 'todo') {
+                      console.log('prepare to start show classes----------------');
+                      if (this.showClassList()) {
+                        console.log("has shown the classes?----------", this.showClassList())
+                        console.log(this.classList)
+                            // getSortWithDb(function () {
+                            //     getFiltWithDb(showWorkList(selectedClassId))
+                            // })
+                        showWorkList(this.selectedClassId);
+                      }
+                    }
+                })
+              })
+            },
+            computed:{
+                showFiles() {
+                  this.showClassList();
+                  this.showWorkList(this.selectedClassId);
+                }
+            },
+            methods: {
+              initDb(func) {
+                console.log('start init classList---------------------', window.rubick.db.get(this.classListName));
+                const newId = createGuid();
+                console.log("create newId--------------", newId)
+                if (!window.rubick.db.get(this.classListName)) {
+                  console.log('start init Class------------')
+                    classListJson = {
+                        "firstId": 0,
+                        "lastId": 0,
+                        "list": {}
+                    };
+                    window.rubick.db.put({
+                        _id: this.classListName,
+                        data: classListJson
+                    });
+                }
+                console.log('start init worklist---------------------', window.rubick.db.get(this.workListName));
+                if (!window.rubick.db.get(this.workListName)) {
+                  workListJson = {
+                    "list" : {}
+                  };
+                  window.rubick.db.put({
+                    _id: this.workListName,
+                    data: workListJson
+                  })
+                }
+                func();
+                // this.showClassList()
+              },
+              showClassList() {
+                console.log('start show classes-----------')
+                let theData = window.rubick.db.get(this.classListName);
+                let classListJson = theData.data;
+                let listJson = theData.data.list;
+                console.log('start showClassList----------------', listJson, Object.values(listJson));
+                if(Object.keys(listJson).length > 0 ) {
+                  // const classLength = Object.keys(listJson)
+                  // i = 0;
+                  // while (i < classLength) {
+                  //   this.classList
+                  // }
+                  if (this.selectedClassId == '' ) {
+                    this.selectedClassId = classListJson.firstId;
+                    console.log('selectedClassId-----------------', this.selectedClassId);
+                  }
+                  this.classList = listJson;
+                  return true;
+                }
+                return false;
+              },
+              addClass() {
+                console.log('add class------------------')
+                theData = window.rubick.db.get(this.classListName);
+                newId = createGuid();
+                if (theData) {
+                  classListJson = theData.data;
+                  classListJson['list'][newId] = {
+                    "parentId": classListJson.lastId,
+                    "childrenId": 0,
+                    // "classId": newId,
+                    // "classContent" : "新建分类",
+                    "id": newId,
+                    "content": this.inputClass
+                  };
+                  if (classListJson['list'][classListJson.lastId]) {
+                      classListJson['list'][classListJson.lastId]["childrenId"] = newId;
+                  }
+                  if (classListJson.firstId == 0) {
+                      classListJson.firstId = newId;
+                  }
+                  classListJson.lastId = newId;
+                  window.rubick.db.put({
+                      _id: theData._id,
+                      data: classListJson,
+                      _rev: theData._rev
+                  });
+                }
+                this.selectedClassId = newId
+                this.ifAddClass = false;
+                this.showClassList();
+                this.showWorkList(this.selectedClassId);
+              },
+              deleteClass(theClassId) {
+                console.log('delete selectedClass------------------------', theClassId)
+                let theData = window.rubick.db.get(this.classListName);
+                let classListJson = theData.data;
+                let listJson = classListJson.list;
+                if (classListJson['lastId'] == theClassId) {
+                  // 待删除分类为最后一个
+                  console.log('lastId--------------------', classListJson['lastId'])
+                  console.log('theClassId-----------------', this.selectedClassId)
+                  classListJson['lastId'] = listJson[theClassId]['parentId']
+                } else {
+                  listJson[listJson[theClassId]['childrenId']]['parentId'] = listJson[theClassId]['parentId']
+                }
+
+                if (classListJson['firstId'] == theClassId) {
+                  // 待删除分类为第一个
+                  classListJson['firstId'] = listJson[theClassId]['childrenId']
+                } else {
+                  listJson[listJson[theClassId]['parentId']['childrenId']] = listJson[theClassId]['childrenId']
+                }
+
+                let parentId = listJson[theClassId]['parentId']
+                delete listJson[theClassId];
+                classListJson['list'] =listJson;
+
+                window.rubick.db.put({
+                  _id: theData._id,
+                  data: classListJson,
+                  _rev: theData._rev
+                });
+
+                this.deleteWorkDataByClassId(theClassId)
+
+                if (patentId == 0) {
+                    selectedClassId = ''
+                } else {
+                    selectedClassId = patentId;
+                }
+                this.showClassList();
+                this.showWorkList(selectedClassId);
+
+              },
+              addWorkList(classId, theContent) {
+                  if (classId == '') {
+                      alert('请先选定清单分类');
+                      return false;
+                  }
+                  if (Object.keys(theContent).length <= 0) {
+                      return false;
+                  }
+                  let theData = window.rubick.db.get(this.workListName);
+                  if (!theData) {
+                      workListJson = {
+                          "list": {}
+                      };
+                      window.rubick.db.put({
+                          _id: this.workListName,
+                          data: workListJson
+                      });
+                      theData = window.rubick.db.get(this.workListName);
+                  }
+                  workListJson = theData.data;
+                  if (!workListJson['list'][classId]) {
+                      workListJson['list'][classId] = {};
+                  }
+                  const timestamp = Date.parse(new Date());
+                  newWorkId = createGuid();
+                  theData.data['list'][classId][newWorkId] = {
+                      "id": newWorkId,
+                      "content": theContent,
+                      "timestamp": timestamp,
+                      "finish_timestamp": 0,
+                      "status": 0,
+                  };
+                  window.rubick.db.put({
+                      _id: theData._id,
+                      data: theData.data,
+                      _rev: theData._rev
+                  });
+                  showWorkList(classId);
+              },
+              showWorkList(theClassId) {
+                let theData = window.rubick.db.get(this.workListName);
+                console.log('showWorkList-------------', theData)
+                const theWorkData = theData['data'];
+                if(theClassId != this.selectedClassId) {
+                  this.selectedClassId = theClassId;
+                }
+                this.workList = theWorkData['list'][this.selectedClassId];
+              },
+              deleteWorkDataByClassId(theClassId) {
+                let workData = window.rubick.db.get(this.workListName);
+                let workListJson = workData.data
+                if (workListJson['list'].hasOwnProperty(theClassId)) {
+                  delete workListJson['list'][theClassId]
+                  window.rubick.db.put({
+                    _id: workData._id,
+                    data: workListJson,
+                    _rev: workData._rev
+                  })
+                }
+              },
+              deleteWork(theClassId, theWorkId) {
+                let theWorkData = window.rubick.db.get(this.workListName);
+                let workListJson = theWorkData.data;
+                if (workListJson['list'][theClassId].hasOwnProperty(theWorkId)) {
+                  delete workListJson['list'][theClassId][theWorkId];
+                  window.rubick.db.put({
+                    _id: theWorkData._id,
+                    data: workListJson,
+                    _rev: theWorkData._rev
+                  })
+                }
+                showWorkList();
+              },
+              doneEdit(e) {
+                const value = e.target.value.trim()
+                const { todo } = this
+                if(!value) {
+                  this.deleteWork()
+                }
+              },
+              handleSelect(key) {
+                console.log("handle select----------------", key)
+                this.selectedClassId = key
+                this.showWorkList()
+              },
+              showAddClass() {
+                this.ifAddClass = true
+              },
+              editClass(theClassId) {
+                console.log('editClassId--------------------');
+              }
+            }
+        })
+
+</script>
+<style>
+  .float-left{
+    /* overflow: hidden; */
+    overflow-y: scroll;
+    width: 20vw;
+    float: left;
+    position: fixed;
+    margin: 0;
+    background-color: #f3f4f6;
+    height: 100%;
+    color: #151515;
+}
+.float-right{
+    width: 80vw;
+    right: 0;
+    float: right;
+    margin: 0;
+    background-color:  #f3f4f6;
+    min-height: 100vh;
+    display: block;
+    /* overflow-y: scroll !important;
+    overflow-x: hidden; */
+}
+.add-class{
+    z-index: 999;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 20vw;
+    height: 56px;
+    line-height: 56px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f3f4f6;
+}
+.work-list-header{
+    height: 50px;
+    /* width: 100%; */
+    border-bottom: dashed 1px #fff;
+    margin: 0 2vw;
+}
+.work-list-header input{
+    margin-top: 12px;
+    /* margin-left: 15px; */
+    width: 63%;
+    padding: 5px;
+    font-size: 20px;
+    border: 0;
+    outline: 0;
+    background-color: #6a7cc4;
+    color: #fff;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+}
+.work-list-header-menu{
+    float: right;
+    right: 0;
+}
+.work-list-header-menu img:hover{
+    opacity: 1;
+}
+
+.work-list-header-menu img{
+    width: 20px;
+    height: 20px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 5px 8px;
+    background-color: #5667a9;
+    opacity: 0.3;
+    display: inline;
+}
+</style>
+</html>
