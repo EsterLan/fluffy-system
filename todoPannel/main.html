@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<script src="./vue.min.js"></script>
+<style>
+    
+</style>
+<script src="./index.js" type="module"></script>
+<body>
+  <div id="app" class="wrapper">
+    <div class="nav-bar">
+      <div class="logo">
+        <img class="min" src="./assets/superPanel.png"/>
+        <sapn class="todo">待办列表</sapn>
+      </div>
+      <img class="min" @click="hideWin" src="./assets/new.png"/>
+    </div>
+    <div class="todo-list">
+      <div v-for="(item, index) in notifyList" class="item" :key="index" :class="index % 2 !== 0 ? 'bg-gray': ''">
+        <div>
+          <span class="title">{{ item.classTitle }}</span>
+          <span class="time">{{ item.notifyTime }}</span>
+        </div>
+        <div class="content">
+          {{ item.content }}
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<style>
+*{
+  margin: 0;
+  padding: 0;
+}
+.wrapper{
+  width: 350px;
+  height: 200px;
+  border-radius: 8px;
+  background: #fff;
+  font-family: PingFang SC;
+}
+.nav-bar{
+  height: 30px;
+  text-align: right;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  background: bisque;
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 5px;
+}
+.min{
+  width: 15px;
+  height: 15px;
+}
+.logo{
+  display: flex;
+  align-items: flex-end;
+}
+.todo{
+  font-size: 13px;
+  margin-left: 4px;
+}
+.todo-list{
+  height: calc(100% - 35px);
+  overflow: auto;
+  border-radius: 0 0 8px 8px;
+}
+.todo-list::-webkit-scrollbar{
+  width: 0;
+  display: none;
+}
+.item{
+  height: 40px;
+  border-bottom: 1px #ddd dashed;
+  font-size: 13px;
+  padding: 3px 15px;
+}
+.title{
+  font-weight: 700;
+  margin-right: 10px;
+  display: inline-block;
+  max-width: 50%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+.time{
+  color: #999;
+}
+.content{
+  font-size: 12px;
+  margin-top: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.bg-gray{
+  background: #f5f6f7;
+}
+</style>
+</html>
+

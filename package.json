@@ -5,16 +5,16 @@
     "author": "OATools",
     "main": "index1.html",
     "logo": "https://static.91jkys.com/attachment/kaer-admin/476bbe78674441bc8c904f6b14e450c8ba71d16f9ffe3e04b75bbd5760c8a738.png",
-    "version": "1.0.0",
-    "preload":"",
-    "homePage": "",
-    "pluginType": "ui",
+    "version": "1.0.2",
+    "entry": "main.js",
+    "preload": "preload.js",
+    "pluginType": "system",
     "features": [
       {
         "code": "todo",
         "explain": "记录待办事项2",
         "cmds":[
-          "todo2",
+          "todo3",
           "待办2",
           "daiban2",
           "db2"
