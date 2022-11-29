@@ -31,7 +31,7 @@
                       ref="addClassBox"
                       placeholder="输入分类后回车"
                       v-model="inputClass"
-                      @blur="exitAddClass"
+                      @blur="addClass"
                       @keyup.enter.native="addClass"
                       v-if="ifAddClass"
                       clearable>
@@ -145,8 +145,8 @@
                     maxlength="100"
                     minlength="1"
                     autofocus="true"
-                    @blur="exitAddTodo"
-                    @keyup.enter.native="addWorkList(selectedClassId, inputWork)"
+                    @blur="addWorkList(selectedClassId, inputWork.trim())"
+                    @keyup.enter.native="addWorkList(selectedClassId, inputWork.trim())"
                     clearable>
                 </el-input> 
               </div>     
@@ -172,8 +172,9 @@
             v-model="selecTodo.notifyTime"
             placeholder="请选择提醒时间"
             type="datetime"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            format="yyyy-MM-dd HH:mm"
+            value-format="yyyy-MM-dd HH:mm"
+            :picker-options="pickerOptions"
             size="mini"
           ></el-date-picker>
           <div slot="footer" class="dialog-footer">
@@ -216,23 +217,78 @@
             cIndex: -1,
             // notifyListName: "notifyListName",
             dialogVisible: false,
-            selecTodo: {}
+            selecTodo: {},
+            pickerOptions: {
+              shortcuts: [{
+                text: '1小时后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }, {
+                text: '3小时后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 3 * 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }, {
+                text: '6小时后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 6 * 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }, {
+                text: '12小时后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 12 * 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }, {
+                text: '1天后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 24 * 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }, {
+                text: '3天后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 3 * 24 * 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }, {
+                text: '6天后',
+                onClick(picker) {
+                  const start = new Date();
+                  start.setTime(start.getTime() + 6 * 24 * 60 * 60 * 1000);
+                  picker.$emit('pick', start);
+                }
+              }]
+            }
         }
       },
       created() {
-        window.rubick.onPluginEnter(({ code, type, payload }) => {
-          console.log('2222222222-----------------')
+        window.rubick.onPluginReady(({ code, type, payload }) => {
+          console.log('toDo created')
           // this.initDb();
           this.initDb( () => {
-              if (code == 'todo') {
-                console.log('prepare to start show classes----------------');
-                if (this.showClassList(false)) {
-                  console.log("has shown the classes?----------", this.classList)
-                      // getSortWithDb(function () {
-                      //     getFiltWithDb(showWorkList(selectedClassId))
-                      // })
-                  // this.showWorkList(this.selectedClassId);
-                }
+              // if (code == 'todo') {
+              //   console.log('prepare to start show classes----------------');
+              //   if (this.showClassList(false)) {
+              //     console.log("has shown the classes?----------", this.classList)
+              //         // getSortWithDb(function () {
+              //         //     getFiltWithDb(showWorkList(selectedClassId))
+              //         // })
+              //     // this.showWorkList(this.selectedClassId);
+              //   }
+              // }
+              if(payload) {
+                this.selectedClassId = payload;
               }
           })
         })
@@ -294,7 +350,7 @@
         this.currentClass = listJson[Object.keys(listJson)[0]].content;
         this.workList = listJson[Object.keys(listJson)[0]].workList;
           func();
-          // this.showClassList()
+          this.showClassList(false);
         },
         showClassList(deleteClass) {
           console.log('start show classes-----------')
@@ -341,7 +397,7 @@
           console.log('add class------------------')
           theData = window.rubick.db.get(this.classListName);
           newId = createGuid();
-		  if(this.inputClass == '') {
+		      if(this.inputClass.trim() == '') {
 	          this.exitAddClass();
 	          return false;
 	        }
@@ -349,7 +405,7 @@
             classListJson = theData.data;
             classListJson[newId] = {
               "id": newId,
-              "content": this.inputClass,
+              "content": this.inputClass.trim(),
               "workList": {}
             }
             window.rubick.db.put({
@@ -392,7 +448,13 @@
           ipcRenderer.send("refresh-notify")
         },
         addWorkList(classId, content) {
-          let theData = window.rubick.db.get(this.classListName);
+            let theData = window.rubick.db.get(this.classListName);
+            console.log('addTodo', this.inputWork, content)
+            if(content == '') {
+              console.log('enter inputWork');
+              this.exitAddTodo();
+              return false
+            }
             if (!theData.data) {
               message.warning('请新建分类');
               return false;
@@ -408,11 +470,7 @@
             let listJson = theData.data;
             let workListJson = listJson[classId].workList;
             const newId = createGuid()
-			if(this.inputWork == '') {
-                    this.exitAddTodo();
-                    return false
-                  }
-            if (Object.keys(workListJson).length >= 0) {
+            if (content != '' && Object.keys(workListJson).length >= 0) {
               console.log('add todo--------------------------')
                 
                 const timestamp = Date.parse(new Date());
@@ -836,11 +894,8 @@
 }
 
 .el-picker-panel{
-  width: 240px !important;
+  width: 350px !important;
   line-height: 0px !important;
-}
-.el-picker-panel__body-wrapper{
-  width: 240px !important;
 }
 .el-date-picker__time-header{
   padding: 5px !important;
@@ -867,6 +922,18 @@
 }
 .el-picker-panel__link-btn:hover{
   background-color: rgba(67, 80, 175, 0.1) !important;
+}
+.el-picker-panel__sidebar{
+  width: 90px !important;
+}
+.el-picker-panel__body{
+  margin-left: 95px !important;
+}
+.el-picker-panel__shortcut{
+  line-height: 40px;
+}
+.el-picker-panel__shortcut:hover{
+  color: #4350af !important;;
 }
 .el-date-table td.available:hover {
     color: #4350af !important;

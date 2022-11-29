@@ -19,8 +19,8 @@
       <img class="min" @click="hideWin" src="./assets/close.png"/>
     </div>
     <div class="todo-list">
-      <div v-for="(item, index) in notifyList" class="item" :key="index" :class="index % 2 !== 0 ? 'bg-gray': ''">
-        <div>
+      <div v-for="(item, index) in notifyList" class="item" @click="openPlugin(item)" :key="index" :class="index % 2 !== 0 ? 'bg-gray': ''">
+        <div class="mt3">
           <span class="title">{{ item.classTitle }}</span>
           <span v-if="item.overdue" class="time over-due">已逾期</span>
           <span v-else class="time">{{ item.notifyTime }}</span>
@@ -83,6 +83,7 @@
   border-bottom: 1px #ddd dashed;
   font-size: 13px;
   padding: 3px 15px;
+  cursor: pointer;
 }
 .title{
   font-size: 12px;
@@ -106,13 +107,16 @@
 }
 .content{
   font-weight: 700;
-  margin-top: 7px;
+  margin-top: 4px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 .bg-gray{
   background: #f5f6f7;
+}
+.mt3{
+  margin-top: 3px;
 }
 </style>
 </html>

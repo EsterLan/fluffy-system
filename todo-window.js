@@ -31,7 +31,7 @@ module.exports = (ctx) => {
         nodeIntegration: true,
       },
     });
-    win.webContents.openDevTools({ mode: "detach" })
+    // win.webContents.openDevTools({ mode: "detach" })
     win.loadURL(`file://${__dirname}/todoPannel/main.html`);
     // 打包后，失焦隐藏
     // win.on("blur", () => {

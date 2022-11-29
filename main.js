@@ -19,16 +19,21 @@ module.exports = () => {
       // win.setVisibleOnAllWorkspaces(true, {visibleOnFullScreen: true});
       // win.setAlwaysOnTop(true);
       // win.show();
-
+      
+      
       // 实时更新
       ipcMain.on("refresh-notify", async () => {
         const notifyList = await global.TODO_NOTIFIES.getNotifies() || [];
-        console.log("刷新数据---------", notifyList)
         win.webContents.send('check-notofy', JSON.stringify(notifyList));
       })
 
       ipcMain.on("hide-win", () => {
         win.hide()
+      })
+
+      ipcMain.on("get-local-plugins", () => {
+        const localPlugins = global.LOCAL_PLUGINS.getLocalPlugins() || []
+        win.webContents.send("local-plugins", JSON.stringify(localPlugins))
       })
 
       ipcMain.on("show-win", () => {
@@ -39,7 +44,6 @@ module.exports = () => {
 
       const timer = setInterval(async () => {
         const notifyList = await global.TODO_NOTIFIES.getNotifies() || [];
-        console.log("notifyListnotifyList:", notifyList)
         win.webContents.send('check-notofy', JSON.stringify(notifyList));
       }, 10 * 1000)
 
