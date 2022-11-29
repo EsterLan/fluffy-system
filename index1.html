@@ -23,7 +23,7 @@
                         <span slot="title"> {{classItem.content}}  </span>
                     </el-menu-item>
                 </el-menu>
-                <div class="add-Class">
+                <div class="add-class-wrapper">
                   <el-input 
                       type="text"
                       maxlength="8"
@@ -40,20 +40,17 @@
             </div>
             <!-- <div class="add-class" onclick="addClass()"><img src="./assets/plus.svg"/>新建分类</div> -->
             <!-- <el-button type="primary"  class="icon-op" style="margin-left: 10px;" shape="default" @click="addClass()" > -->
-            <div style="position: absolute;bottom: 10px;;">
-              <el-button type="primary"  class="icon-op" style="margin-left: 10px;" shape="default" @click="showAddClass" >
-                <img src="./assets/addClass.svg"/>  <span>新建分类</span>
-              </el-button>
+            <div class="add-class" style="" @click="showAddClass">
+              <img class="add-class-logo" src="./assets/addClass.svg"/>
+              <span class="add-class-text">添加分组</span>
             </div>
 
         </div>
         <div id="right-item" class="float-right">
-            <el-button v-if="selectedClassId!=''"type="primary"  class="icon-op add-todo" style="margin-right: 10px;position: fixed;" shape="default" @click="showAddTodo" >
-              <img src="./assets/addTodo.svg">
-            </el-button>
+          <img v-if="selectedClassId!=''" class="add-todo-icon" src="./assets/addTodo.svg" @click="showAddTodo">
             <div class="work-list-header-menu">
                 <div class="left-header">
-                    <span v-if="!editClass" style="text-align: left;" @dblclick="showEditClass">{{currentClass}}</span>
+                    <span v-if="!editClass" style="text-align: left;font-weight:700;" @dblclick="showEditClass">{{currentClass}}</span>
                     <el-input type="text"
                     class="form-control"
                     width = "100px"
@@ -67,11 +64,13 @@
                     @blur="submitEditClass(selectedClassId)" />
                 </div>
                 <div class="right-header" v-if="selectedClassId != ''">
-                  <span @click="showEditClass">
+                  <span class="class-oper" @click="showEditClass">
                     <img src="./assets/renameClass.svg">
+                    重命名
                   </span>
-                  <span @click="deleteClass(selectedClassId)">
+                  <span class="class-oper" @click="deleteClass(selectedClassId)">
                     <img src="./assets/deleteClass.svg">
+                    删除
                   </span>
                     <!-- <el-button type="primary"  class="icon-op" style="margin-left: 10px;" shape="default" @click="showEditClass" >
                         重命名分类
@@ -81,13 +80,13 @@
                     </el-button> -->
                 </div>
             </div>
-            <div id="work-list" class="work-list" >
+            <div v-if="(workList && Object.keys(workList).length>0 || addTodo)" id="work-list" class="work-list" >
                 <!-- {{ workList }} -->
                 <div class="todo-item" v-for="(todo, i) in workList">
                   <div class="todo-item-wrapper">
                     <div class="box-content">
-                      <el-checkbox v-model="todo.done" @change="toggleTodo(todo.workId)">
-                      </el-checkbox>
+                      <img v-show="todo.done" class="check-img"  src="./assets/checked.png" @click="toggleTodo(todo.workId)"/>
+                      <img v-show="!todo.done" class="check-img" src="./assets/nochecked.png" @click="toggleTodo(todo.workId)"/>
                       <span v-if="(!editTodo&& !todo.done) || (!todo.done && cIndex != Object.keys(workList).indexOf(todo.workId))" 
                         style="text-align: left;margin-left: 10px;font-size: 14px;"
                         @dblclick="showEditTodo(Object.keys(workList).indexOf(i), i)" >
@@ -124,20 +123,22 @@
                     <div>
                       <el-tooltip effect="light" placement="top" :disabled="!todo.notifyTime" :content="todo.notifyTime">
                         <span @click="setNotifyTime(todo)">
-                          <img src="./assets/remindDisabled.svg">
+                          <img v-show="todo.notifyTime" class="todo-oper-icon" src="./assets/remindActive.svg">
+                          <img v-show="!todo.notifyTime" class="todo-oper-icon" src="./assets/remindDisabled.svg">
                         </span>
                       </el-tooltip>
-                      <span @click="deleteWork(selectedClassId, todo.workId)">
-                        <img src="./assets/deleteTodo.svg">
+                      <span class="ml16" @click="deleteWork(selectedClassId, todo.workId)">
+                        <img class="todo-oper-icon" src="./assets/deleteTodo.svg">
                       </span>
                     </div>
                   </div>
                 </div>
                
-              <div class="todo-item-wrapper" style="margin-top: 10px;" v-if="addTodo">
-                <el-checkbox >
-                </el-checkbox>  
+              <div class="todo-item-wrapper" style="margin-top: 10px;" v-if="addTodo" >
+                <img class="check-img mr10" src="./assets/nochecked.png"/>
                 <el-input
+                    type="textarea"
+                    autosize
                     placeholder="请输入待办，双击可编辑"
                     ref = "addTodoBox"
                     v-model="inputWork"
@@ -149,7 +150,13 @@
                     clearable>
                 </el-input> 
               </div>     
-          </div>
+            </div>
+            <div v-else>
+              <div class="empty-wrapper">
+                <img src="./assets/empty.png" class="empty-img" />
+                <p class="empty-tip">当前暂无待办事项，点击添加新建按钮添加</p>
+              </div>
+            </div>
         </div>
         <!-- 消息提醒时间设置 -->
         <el-dialog
@@ -382,6 +389,7 @@
           });
           this.showClassList(true);
           this.showWorkList(this.selectedClassId);
+          ipcRenderer.send("refresh-notify")
         },
         addWorkList(classId, content) {
           let theData = window.rubick.db.get(this.classListName);
@@ -473,6 +481,7 @@
             _rev: theData._rev
           })
           this.showWorkList(theClassId);
+          ipcRenderer.send("refresh-notify")
         },
         handleSelect(key) {
           console.log("handle select Class----------------", key)
@@ -489,16 +498,21 @@
         submitEditTodo(theClassId, theWorkId){
           console.log('submitEditTodo-------------------', theClassId, theWorkId, this.currentTodo);
           const theData = window.rubick.db.get(this.classListName);
-          let listJson = theData.data;
+          let listJson = theData.data;  
+          if(this.currentTodo == '') {
+          console.log('编辑时清空todo--------------', this.currentTodo);
+          this.deleteWork(theClassId, theWorkId);
+          }else{
           listJson[theClassId].workList[theWorkId].content = this.currentTodo;
           window.rubick.db.put({
-            _id: theData._id,
-            data: listJson,
-            _rev: theData._rev
+          _id: theData._id,
+          data: listJson,
+          _rev: theData._rev
           });
           this.showClassList(false);
           // 更新workList数据显示
           this.workList = listJson[theClassId].workList;
+          }
           this.editTodo=false;
         },
         submitEditClass(theClassId) {
@@ -559,6 +573,7 @@
             data: listJson,
             _rev: theData._rev
           })
+          this.showWorkList(this.selectedClassId)
           ipcRenderer.send("refresh-notify")
         },
           carriageReturn(event) {
@@ -582,11 +597,13 @@
   border-right: none !important;
 }
 .el-menu-item{
-  padding-left: 10px !important;
+  padding-left: 16px !important;
+  height: 44px;
+  line-height: 44px;
 }
 .el-menu-item.is-active{
   color: #4350af;
-  background: gray;
+  background: #EBEEF5;
 }
 .container{
   display: flex;
@@ -594,28 +611,88 @@
   min-height: 97vh;
 }
 .float-left{
-  width: 20vw;
-  height: 100vh;
+  width: 23%;
+  height: 99vh;
   background: #fff;
-  border-right: 1px solid #f3f4f6;
+  border-right: 1px solid #EBEEF5;
+  border-top: 1px solid #EBEEF5;
 }
 .classMenu{
-  max-height: 90vh;
+  max-height: 89vh;
   overflow: auto
 }
 .classMenu::-webkit-scrollbar{
   width: 0;
   display: none;
 }
+.add-class{
+  position: absolute;
+  bottom: 20px; 
+  left: 16px;
+  width: 150px;
+  height: 44px;
+  line-height: 44px;
+  background: #F3F6F8;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.add-class-logo{
+  width: 16px;
+  height: 16px;
+  margin-left: 16px;
+  margin-right: 12px;
+}
+.add-class-text{
+  font-size: 14px;
+}
+.add-class-wrapper{
+  margin-left: 9px;
+  margin-top: 3px;
+}
 .float-right{
   flex-grow: 1;
   height: 100vh;
   position: relative;
+  max-width: 615px;
 }
-.add-todo{
+.right-header{
+  display: flex;
+  font-size: 14px;
+}
+.class-oper{
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.class-oper img {
+  margin-right: 4px;
+}
+.class-oper:not(:first-child){
+  margin-left: 12px;
+}
+.empty-wrapper{
+  text-align: center;
+  margin-top: 20%;
+}
+.empty-img{
+  width: 181px;
+  height: 122px;
+}
+.empty-tip{
+  font-size: 16px;
+  color: #838282;
+  margin-top: 20px;
+}
+
+.add-todo-icon{
   position: absolute;
   bottom: 20px;
-  right: 10px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  z-index: 999;
 }
 .work-list-header{
     height: 50px;
@@ -647,29 +724,12 @@
     padding: 0 20px;
     border-top: 1px solid #f3f4f6;
     border-bottom: 1px solid #f3f4f6;
-    height: 48px;
+    height: 44px;
 }
 
-.work-list-header-menu img:hover{
-    opacity: 1;
-}
-
-.work-list-header-menu img{
-    width: 20px;
-    height: 20px;
-    display: block;
-    margin: 0 auto;
-    margin-top: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 5px 8px;
-    background-color: #5667a9;
-    opacity: 0.3;
-    display: inline;
-}
 .work-list {
-    padding: 10px;
-    height: 88vh;
+    padding: 10px 20px;
+    height: 87vh;
     overflow: auto;
 }
 .work-list::-webkit-scrollbar{
@@ -680,21 +740,34 @@
   /* height: 40px; */
   display: flex;
   border: 1px solid #4350af;
-  background: #fff;
+  background: #EBEEF5;
   justify-content: space-between;
   align-items: center;
   border-radius: 4px;
-  padding: 0 10px;
+  padding: 8px 16px;
 }
 .todo-item:not(:first-child){
   margin-top: 10px;
 }
-
+.check-img{
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.todo-oper-icon{
+  width: 16px;
+  height:16px;
+  cursor: pointer;
+}
+.ml16{
+  margin-left: 10px;
+}
 .content-input{
   display: inline-block;
-  width: 450px;
+  width: 430px;
   /* height: 30px; */
   border: none;
+  margin-left: 10px;
 }
 .el-input__inner {
     -webkit-appearance: none;
@@ -723,36 +796,32 @@
 .el-textarea__inner {
     /* display: block; */
     /* resize: vertical; */
-    /* padding: 5px 15px; */
+    padding: 5px 10px;
     /* line-height: 1.5; */
     box-sizing: border-box;
     width: 100%;
     font-size: inherit;
-    color: #606266;
+    color: #333;
     background-color: #FFF;
     outline: none;
     border: none;
     resize: none;
-    height: 30px;
+    /* height: 30px; */
+}
+.el-textarea__inner::-webkit-scrollbar{
+  width: 0;
+  display: none;
+}
+.mr10{
+  margin-right: 10px;
 }
 .box-content{
-  display: contents;
+  display: flex;
+  align-items: center;
+  max-width: 90%;
 }
 .dialog-footer{
   text-align: center;
-}
-.work-list-header-menu img {
-    width: 20px;
-    height: 20px;
-    display: block;
-    margin: 0 auto;
-    margin-top: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    padding: 5px 8px;
-    /* background-color: #5667a9; */
-    /* opacity: 0.3; */
-    display: inline;
 }
 .el-button--primary, .el-button--primary:hover{
   color: #FFF;
@@ -798,6 +867,12 @@
 }
 .el-picker-panel__link-btn:hover{
   background-color: rgba(67, 80, 175, 0.1) !important;
+}
+.el-date-table td.available:hover {
+    color: #4350af !important;
+}
+.el-time-panel__btn.confirm{
+  color: #4350af !important;
 }
 </style>
 </html>

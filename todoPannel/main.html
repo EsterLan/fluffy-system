@@ -13,16 +13,17 @@
   <div id="app" class="wrapper">
     <div class="nav-bar">
       <div class="logo">
-        <img class="min" src="./assets/superPanel.png"/>
-        <sapn class="todo">待办列表</sapn>
+        <img class="min" src="./assets/todo.png"/>
+        <sapn class="todo">待办提醒</sapn>
       </div>
-      <img class="min" @click="hideWin" src="./assets/new.png"/>
+      <img class="min" @click="hideWin" src="./assets/close.png"/>
     </div>
     <div class="todo-list">
       <div v-for="(item, index) in notifyList" class="item" :key="index" :class="index % 2 !== 0 ? 'bg-gray': ''">
         <div>
           <span class="title">{{ item.classTitle }}</span>
-          <span class="time">{{ item.notifyTime }}</span>
+          <span v-if="item.overdue" class="time over-due">已逾期</span>
+          <span v-else class="time">{{ item.notifyTime }}</span>
         </div>
         <div class="content">
           {{ item.content }}
@@ -50,13 +51,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 15px;
-  background: bisque;
+  background: #4350af;
   border-radius: 8px 8px 0 0;
   margin-bottom: 5px;
 }
 .min{
   width: 15px;
   height: 15px;
+  cursor: pointer;
 }
 .logo{
   display: flex;
@@ -64,7 +66,8 @@
 }
 .todo{
   font-size: 13px;
-  margin-left: 4px;
+  margin-left: 6px;
+  color: #fff;
 }
 .todo-list{
   height: calc(100% - 35px);
@@ -76,13 +79,13 @@
   display: none;
 }
 .item{
-  height: 40px;
+  height: 45px;
   border-bottom: 1px #ddd dashed;
   font-size: 13px;
   padding: 3px 15px;
 }
 .title{
-  font-weight: 700;
+  font-size: 12px;
   margin-right: 10px;
   display: inline-block;
   max-width: 50%;
@@ -92,11 +95,18 @@
   vertical-align: bottom;
 }
 .time{
-  color: #999;
+  font-size: 12px;
+  color: #fff;
+  padding: 2px 10px;
+  background: #4350af;
+  border-radius: 12px;
+}
+.over-due{
+  background: rgba(255, 78, 164) !important;
 }
 .content{
-  font-size: 12px;
-  margin-top: 6px;
+  font-weight: 700;
+  margin-top: 7px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

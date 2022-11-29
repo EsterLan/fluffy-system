@@ -60,6 +60,11 @@ new Vue({
             let notifyTamp = parseInt(new Date(item.notifyTime).getTime() / 1000 )
             // 给1s的代码执行误差范围
             console.log("时间戳差值：", notifyTamp - currentTamp)
+            if(notifyTamp - currentTamp < -60) {
+              this.$set(item, "overdue", true)
+            } else {
+              this.$set(item, "overdue", false)
+            }
             return notifyTamp - currentTamp < 1
           }))
           console.log("第二次过滤后--", this.notifyList)
